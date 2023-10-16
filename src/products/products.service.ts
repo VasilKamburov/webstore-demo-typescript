@@ -4,6 +4,7 @@ import { Product } from './models/product.entity';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { CreateProductDto } from './models/create-product.dto';
 import { ProductMapper } from './product.mapper';
+import { NegativeQuantityException } from './exceptions/negative-quantity.exception';
 
 @Injectable()
 export class ProductsService {
@@ -29,6 +30,9 @@ export class ProductsService {
     }
 
     async changeProductQuantity(id: string, newNum: number): Promise<UpdateResult> {
+        if (newNum < 0) {
+          throw new NegativeQuantityException();
+        }
         let product = await this.findProductById(id);
         product.quantityAvailable = newNum;
         return await this.productRepository.update(id, product);
