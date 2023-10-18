@@ -39,7 +39,11 @@ export class ProductsService {
     }
 
     async deleteProductById(id: string): Promise<DeleteResult> {
-        return await this.productRepository.delete(id);
+        let result: DeleteResult = await this.productRepository.delete(id);
+        if (result.affected === 0) {
+            throw new NotFoundException(`Task with ID "${id}" not found`);
+        }
+        return result;
     }
 
     async createProduct(createProductDto: CreateProductDto): Promise<Product> {
