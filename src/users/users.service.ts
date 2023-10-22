@@ -4,12 +4,20 @@ import { User } from './models/user.entity';
 import { Repository } from 'typeorm';
 import { AuthCredentialsDto } from './models/auth-credentials.dto';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from './models/jwt-payload.interface';
+import { ProductsService } from 'src/products/products.service';
+import { Product } from 'src/products/models/product.entity';
+import { ChangeItemInListDto } from './models/item-adding.dto';
+import { use } from 'passport';
 
 @Injectable()
 export class UsersService {
     constructor(
         @InjectRepository(User)
-        private userRepository: Repository<User>
+        private userRepository: Repository<User>,
+        private jwtService: JwtService,
+        private productService: ProductsService,
     ) {}
 
     async findAllUsers(): Promise<User[]> {
@@ -39,16 +47,62 @@ export class UsersService {
         return 'Success';
     }
 
-    async signIn(authCredentialsDto: AuthCredentialsDto): Promise<string> {
+    async signIn(authCredentialsDto: AuthCredentialsDto): Promise<{accessToken: string}> {
         const {email, password} = authCredentialsDto; 
 
         const user = await this.userRepository.findOneBy({email});
 
         if (user && (await bcrypt.compare(password, user.password))) {
-            return 'success'
+            const payload: JwtPayload = {email};
+            const accessToken = await this.jwtService.sign(payload);
+            return {accessToken}
         } else {
             throw new UnauthorizedException('Please check login credentials')
         }
 
+    }
+
+    async addToList(user: User, changeItemInListDto: ChangeItemInListDto): Promise<string> {
+        const product: Product = await this.productService.findProductById(changeItemInListDto.productId);
+
+        if (changeItemInListDto.listToAddTo === 'cart') {
+            if (!user.cart) {
+                user.cart = [];
+            }
+            user.cart.push(product);
+        } else if (changeItemInListDto.listToAddTo === 'wishlist') {
+            if (!user.wishlist) {
+                user.wishlist = [];
+            }
+            user.wishlist.push(product);
+        }
+
+        await this.userRepository.save(user);
+
+        return 'success'
+    }
+
+    async removeFromList(user: User, changeItemInListDto: ChangeItemInListDto): Promise<string> {
+        const product: Product = await this.productService.findProductById(changeItemInListDto.productId);
+
+        if (changeItemInListDto.listToAddTo === 'cart') {
+            console.log(user.cart);
+            if (!user.cart) {
+                user.cart = [];
+            }
+            user.cart = user.cart.filter(item => item.id !== product.id);
+            console.log(user.cart);
+        } else if (changeItemInListDto.listToAddTo === 'wishlist') {
+            console.log(user.wishlist);
+            if (!user.wishlist) {
+                user.wishlist = [];
+            }
+            user.wishlist = user.wishlist.filter(item => item.id !== product.id);
+            console.log(user.wishlist);
+        }        
+
+        await this.userRepository.save(user);
+
+        return 'success'
     }
 }

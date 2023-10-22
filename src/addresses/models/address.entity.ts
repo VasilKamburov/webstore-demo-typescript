@@ -17,10 +17,10 @@ export class Address {
   @Column({ nullable: true })
   additionalNotes: string;
 
-  @ManyToOne(() => User, (user) => user.addresses)
+  @ManyToOne(() => User, (user) => user.addresses, {eager: true})
   user: User;
 
-  @OneToMany(() => Order, (order) => order.address)
+  @OneToMany(() => Order, (order) => order.address, {eager: true})
   orders: Order[];
 
   @CreateDateColumn({ type: 'timestamp' })

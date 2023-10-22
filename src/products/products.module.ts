@@ -8,6 +8,7 @@ import { ProductMapper } from './product.mapper';
 @Module({
   imports: [TypeOrmModule.forFeature([Product])],
   controllers: [ProductsController],
-  providers: [ProductsService, ProductMapper]
+  providers: [ProductsService, ProductMapper],
+  exports: [ProductsService]
 })
 export class ProductsModule {}

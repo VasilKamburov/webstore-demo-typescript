@@ -14,17 +14,17 @@ export class User {
   @Column()
   password: string;
 
-  @OneToMany(() => Order, (order) => order.user)
+  @OneToMany(() => Order, (order) => order.user, {eager: true})
   orders: Order[];
 
-  @OneToMany(() => Address, (address) => address.user)
+  @OneToMany(() => Address, (address) => address.user, {eager: true})
   addresses: Address[];
 
-  @ManyToMany(() => Product)
+  @ManyToMany(() => Product, {eager: true})
   @JoinTable()
   wishlist: Product[];
 
-  @ManyToMany(() => Product)
+  @ManyToMany(() => Product, {eager: true})
   @JoinTable()
   cart: Product[];
 
