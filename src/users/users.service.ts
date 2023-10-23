@@ -8,8 +8,9 @@ import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './models/jwt-payload.interface';
 import { ProductsService } from 'src/products/products.service';
 import { Product } from 'src/products/models/product.entity';
-import { ChangeItemInListDto } from './models/item-adding.dto';
+import { ChangeItemInListDto } from './models/list-item-change.dto';
 import { use } from 'passport';
+import { TargetedList } from './models/targeted-list.enum';
 
 @Injectable()
 export class UsersService {
@@ -24,7 +25,7 @@ export class UsersService {
         return await this.userRepository.find();
     }
 
-    async singUp(authCredentialsDto: AuthCredentialsDto): Promise<string> {
+    async singUp(authCredentialsDto: AuthCredentialsDto): Promise<void> {
         const {email, password} = authCredentialsDto;
 
         //hash
@@ -42,9 +43,6 @@ export class UsersService {
                 throw new InternalServerErrorException();
             }
         }
-
-
-        return 'Success';
     }
 
     async signIn(authCredentialsDto: AuthCredentialsDto): Promise<{accessToken: string}> {
@@ -62,15 +60,15 @@ export class UsersService {
 
     }
 
-    async addToList(user: User, changeItemInListDto: ChangeItemInListDto): Promise<string> {
+    async addToList(user: User, changeItemInListDto: ChangeItemInListDto): Promise<void> {
         const product: Product = await this.productService.findProductById(changeItemInListDto.productId);
 
-        if (changeItemInListDto.listToAddTo === 'cart') {
+        if (changeItemInListDto.targetedList === TargetedList.CART) {
             if (!user.cart) {
                 user.cart = [];
             }
             user.cart.push(product);
-        } else if (changeItemInListDto.listToAddTo === 'wishlist') {
+        } else if (changeItemInListDto.targetedList === TargetedList.WISHLIST) {
             if (!user.wishlist) {
                 user.wishlist = [];
             }
@@ -78,19 +76,17 @@ export class UsersService {
         }
 
         await this.userRepository.save(user);
-
-        return 'success'
     }
 
-    async removeFromList(user: User, changeItemInListDto: ChangeItemInListDto): Promise<string> {
+    async removeFromList(user: User, changeItemInListDto: ChangeItemInListDto): Promise<void> {
         const product: Product = await this.productService.findProductById(changeItemInListDto.productId);
 
-        if (changeItemInListDto.listToAddTo === 'cart') {
+        if (changeItemInListDto.targetedList === TargetedList.CART) {
             if (!user.cart) {
                 user.cart = [];
             }
             user.cart = user.cart.filter(item => item.id !== product.id);
-        } else if (changeItemInListDto.listToAddTo === 'wishlist') {
+        } else if (changeItemInListDto.targetedList === TargetedList.WISHLIST) {
             if (!user.wishlist) {
                 user.wishlist = [];
             }
@@ -98,7 +94,5 @@ export class UsersService {
         }        
 
         await this.userRepository.save(user);
-
-        return 'success'
     }
 }

@@ -5,7 +5,7 @@ import { UsersService } from './users.service';
 import { AuthCredentialsDto } from './models/auth-credentials.dto';
 import { GetUser } from './models/get-user.decorator';
 import { AuthGuard } from '@nestjs/passport';
-import { ChangeItemInListDto } from './models/item-adding.dto';
+import { ChangeItemInListDto } from './models/list-item-change.dto';
 
 @Controller('users')
 export class UsersController {
@@ -18,7 +18,7 @@ export class UsersController {
     }
 
     @Post('/signup')
-    createUser(@Body() authCredentialsDto: AuthCredentialsDto): Promise<string> {
+    createUser(@Body() authCredentialsDto: AuthCredentialsDto): Promise<void> {
         return this.userService.singUp(authCredentialsDto);
     }
 
@@ -32,7 +32,7 @@ export class UsersController {
     addToCart(
         @Body() changeItemInListDto: ChangeItemInListDto,
         @GetUser() user: User,
-    ): Promise<string> {
+    ): Promise<void> {
     return this.userService.addToList(user, changeItemInListDto);
     }
 
@@ -41,7 +41,7 @@ export class UsersController {
     removeFromList(
         @Body() changeItemInListDto: ChangeItemInListDto,
         @GetUser() user: User,
-    ): Promise<string> {
+    ): Promise<void> {
     return this.userService.removeFromList(user, changeItemInListDto);
     }
 }
