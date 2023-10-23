@@ -1,4 +1,5 @@
-import { IsInt, IsNotEmpty, IsNumber, IsNumberString, Min } from "class-validator";
+import { IsEnum, IsInt, IsNotEmpty, IsNumber, IsNumberString, Min } from "class-validator";
+import { Size } from "./size.enum";
 
 export class CreateProductDto {
     @IsNotEmpty()
@@ -8,7 +9,8 @@ export class CreateProductDto {
     description: string;
 
     @IsNotEmpty()
-    size: string;
+    @IsEnum(Size)
+    size: Size;
 
     @IsNotEmpty()
     colour: string;

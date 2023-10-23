@@ -1,4 +1,5 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Size } from "./size.enum";
 
 @Entity()
 export class Product {
@@ -11,8 +12,8 @@ export class Product {
     @Column('text', { nullable: false })
     description: string;
 
-    @Column({ length: 50, nullable: false })
-    size: string;
+    @Column({ type: 'enum', enum: Size, default: Size.MEDIUM })
+    size: Size;
 
     @Column({ length: 50, nullable: false })
     colour: string;
