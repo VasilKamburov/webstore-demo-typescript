@@ -17,7 +17,7 @@ export class Address {
   @Column({ nullable: true })
   additionalNotes: string;
 
-  @ManyToOne(() => User, (user) => user.addresses, {eager: true})
+  @ManyToOne(() => User, (user) => user.addresses, {cascade: true})
   user: User;
 
   @OneToMany(() => Order, (order) => order.address, {eager: true})

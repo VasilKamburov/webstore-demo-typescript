@@ -19,11 +19,11 @@ export class ProductsService {
         return await this.productRepository.find();
     } 
 
-    async findProductById(id: string): Promise<Product | undefined> {
+    async findProductById(id: string): Promise<Product> {
         let product: Product = await this.productRepository.findOne({ where: { id } });
 
         if (!product) {
-            throw new NotFoundException(`Task with ID "${id}" not found`);
+            throw new NotFoundException(`Product with ID "${id}" not found`);
         }
 
         return product;

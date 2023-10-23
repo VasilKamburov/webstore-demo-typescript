@@ -31,7 +31,7 @@ export class UsersService {
         const salt = await bcrypt.genSalt();
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        const user = this.userRepository.create({ email, password: hashedPassword });
+        const user = this.userRepository.create({ email, password: hashedPassword, addresses: [] });
 
         try {
             await this.userRepository.save(user);
@@ -54,7 +54,7 @@ export class UsersService {
 
         if (user && (await bcrypt.compare(password, user.password))) {
             const payload: JwtPayload = {email};
-            const accessToken = await this.jwtService.sign(payload);
+            const accessToken = this.jwtService.sign(payload);
             return {accessToken}
         } else {
             throw new UnauthorizedException('Please check login credentials')
@@ -86,19 +86,15 @@ export class UsersService {
         const product: Product = await this.productService.findProductById(changeItemInListDto.productId);
 
         if (changeItemInListDto.listToAddTo === 'cart') {
-            console.log(user.cart);
             if (!user.cart) {
                 user.cart = [];
             }
             user.cart = user.cart.filter(item => item.id !== product.id);
-            console.log(user.cart);
         } else if (changeItemInListDto.listToAddTo === 'wishlist') {
-            console.log(user.wishlist);
             if (!user.wishlist) {
                 user.wishlist = [];
             }
             user.wishlist = user.wishlist.filter(item => item.id !== product.id);
-            console.log(user.wishlist);
         }        
 
         await this.userRepository.save(user);
